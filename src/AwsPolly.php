@@ -138,6 +138,12 @@ class AwsPolly
         ],
         'cy-GB' => [
             'Gwyneth'
+        ],
+        'arb' => [
+            'Zeina'
+        ],
+        'cmn-CN' => [
+            'Zhiyu'
         ]
     ];
 
