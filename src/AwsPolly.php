@@ -109,6 +109,7 @@ class AwsPolly
         ],
         'pt-BR' => [
             'Ricardo',
+            'Camila',
             'Vitoria'
         ],
         'pt-PT' => [
