@@ -27,9 +27,21 @@ class AwsPolly
     private $Client;
 
     private $used_voice = 'Ivy';
+    private $used_sample_rate = '16000';
     private $used_language = 'en-US';
+    private $used_extension = 'mp3';
     private $output_path;
-    private $file_extension = 'mp3';
+
+    private $sample_rates = [
+        "8000", "16000", "22050", "24000"
+    ];
+
+    private $file_extensions = [
+        "json",
+        "mp3",
+        "ogg_vorbis",
+        "pcm"
+    ];
 
     private $language_voice = [
         'da-DK' => [
@@ -109,6 +121,7 @@ class AwsPolly
         ],
         'pt-BR' => [
             'Ricardo',
+            'Camila',
             'Vitoria'
         ],
         'pt-PT' => [
@@ -162,7 +175,7 @@ class AwsPolly
          * Set AWS Key
          */
         if (!empty($aws_key) || $aws_key !== null) {
-            $this->setAWSKey($aws_key);
+            $this->AWS_Key = $aws_key;
         } else {
             throw new Exception('Key is required');
         }
@@ -171,174 +184,29 @@ class AwsPolly
          * Set AWS Secret
          */
         if (!empty($aws_secret) || $aws_secret !== null) {
-            $this->setAWSSecret($aws_secret);
+            $this->AWS_Secret = $aws_secret;
         } else {
             throw new Exception('Secret is missing');
         }
 
         // set s3 region
         if (!empty($aws_region) || $aws_region !== null) {
-            $this->setAWSRegion($aws_region);
+            $this->AWS_Region = $aws_region;
         } else {
             throw new Exception('Region is missing');
         }
 
         // set s3 version
         if (!empty($aws_version) || $aws_version !== null) {
-            $this->setAWSVersion($aws_version);
+            $this->AWS_Version = $aws_version;
         }
         // set s3 http verify
-        $this->setAWSHttpVerify($aws_http_verify);
+        $this->AWS_http_verify = $aws_http_verify;
 
         /**
          * Initialize AWS Client with the provided credentials
          */
         $this->setAwsClient();
-    }
-
-
-    /**************************
-     *    S E T T E R S
-     ***************************/
-    /**
-     * @param mixed $AWS_Key
-     */
-    private function setAWSKey($AWS_Key)
-    {
-        $this->AWS_Key = $AWS_Key;
-    }
-
-    /**
-     * @param mixed $AWS_Secret
-     */
-    private function setAWSSecret($AWS_Secret)
-    {
-        $this->AWS_Secret = $AWS_Secret;
-    }
-
-    /**
-     * @param mixed $AWS_Region
-     */
-    private function setAWSRegion($AWS_Region)
-    {
-        $this->AWS_Region = $AWS_Region;
-    }
-
-    /**
-     * @param string $AWS_Version
-     */
-    public function setAWSVersion($AWS_Version)
-    {
-        $this->AWS_Version = $AWS_Version;
-    }
-
-    /**
-     * @param bool $AWS_http_verify
-     */
-    public function setAWSHttpVerify($AWS_http_verify)
-    {
-        $this->AWS_http_verify = $AWS_http_verify;
-    }
-
-    /**
-     * @param string $used_voice
-     */
-    public function setUsedVoice($used_voice)
-    {
-        $this->used_voice = $used_voice;
-    }
-
-    /**
-     * @param string $used_language
-     */
-    public function setUsedLanguage($used_language)
-    {
-        $this->used_language = $used_language;
-    }
-
-    /**
-     * @param mixed $output_path
-     */
-    public function setOutputPath($output_path)
-    {
-        $this->output_path = $output_path;
-    }
-
-
-
-    /*****************************
-     *  G E T T E R S
-     *****************************/
-    /**
-     * @return mixed
-     */
-    public function getAWSKey()
-    {
-        return $this->AWS_Key;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAWSSecret()
-    {
-        return $this->AWS_Secret;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAWSRegion()
-    {
-        return $this->AWS_Region;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAWSVersion()
-    {
-        return $this->AWS_Version;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAWSHttpVerify()
-    {
-        return $this->AWS_http_verify;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsedVoice()
-    {
-        return $this->used_voice;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsedLanguage()
-    {
-        return $this->used_language;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOutputPath()
-    {
-        return $this->output_path;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFileExtension()
-    {
-        return $this->file_extension;
     }
 
     /**
@@ -381,14 +249,14 @@ class AwsPolly
     private function setAwsClient()
     {
         $client = new PollyClient([
-            'version' => $this->getAWSVersion(),
-            'region' => $this->getAWSRegion(),
+            'version' => $this->AWS_Version,
+            'region' => $this->AWS_Region,
             'http' => [
-                'verify' => $this->isAWSHttpVerify()
+                'verify' => $this->AWS_http_verify
             ],
             'credentials' => [
-                'key' => $this->getAWSKey(),
-                'secret' => $this->getAWSSecret()
+                'key' => $this->AWS_Key,
+                'secret' => $this->AWS_Secret
             ]
         ]);
 
@@ -414,35 +282,44 @@ class AwsPolly
             throw new Exception('Text is empty');
 
         if (!empty($param['voice']))
-            $this->setUsedVoice($param['voice']);
+            $this->used_voice = $param['voice'];
 
         if (!empty($param['language']))
-            $this->setUsedLanguage($param['language']);
+            $this->used_language = $param['language'];
+
+        if (!empty($param['sample_rate']))
+            $this->used_sample_rate = $param['sample_rate'];
+
+        if (!empty($param['output_format']))
+            $this->used_extension = $param['output_format'];
 
         if (!empty($param['output_path']))
-            $this->setOutputPath($param['output_path']);
+            $this->output_path = $param['output_path'];
 
 
         /************************
          *  Processing
          ************************/
-        if (empty($this->getOutputPath()))
+        if (empty($this->output_path))
             throw new Exception('Output path not specified. Either set output path with setOutputPath() function or pass second parameter to this function with absolute path. eg., [\'output_path\' => \'path_to_save\']');
 
-        if (empty($this->getUsedVoice()))
+        if (empty($this->used_voice))
             throw new Exception('Voice is not set. Set voice by passing [\'voice\' => \'\'] in second parameter');
 
-        if (empty($this->getUsedLanguage()))
+        if (empty($this->used_language))
             throw new Exception('Language is not set. Set language by passing [\'language\' => \'\'] in second parameter');
 
-        if (!in_array($this->getUsedLanguage(), $this->getLanguages()))
-            throw new Exception($this->getUsedLanguage() . ' language is not supported. use getLanguages() to see all supported languages');
+        if (!in_array($this->used_language, $this->getLanguages()))
+            throw new Exception($this->used_language . ' language is not supported. use getLanguages() to see all supported languages');
+        
+        if (!in_array($this->used_extension, $this->file_extensions))
+            throw new Exception($this->used_extension . ' extension is not supported');
 
-        if (!in_array($this->getUsedVoice(), $this->getVoices()))
-            throw new Exception($this->getUsedVoice() . ' voice is not supported. use getVoices() to see all supported voices');
+        if (!in_array($this->used_voice, $this->getVoices()))
+            throw new Exception($this->used_voice . ' voice is not supported. use getVoices() to see all supported voices');
 
-        if (!in_array($this->getUsedVoice(), $this->language_voice[$this->getUsedLanguage()]))
-            throw new Exception($this->getUsedVoice() . ' is not supported in language ' . $this->getUsedLanguage() . '. Supported voices are ' . implode(',', $this->language_voice[$this->getUsedLanguage()]));
+        if (!in_array($this->used_voice, $this->language_voice[$this->used_language]))
+            throw new Exception($this->used_voice . ' is not supported in language ' . $this->used_language . '. Supported voices are ' . implode(',', $this->language_voice[$this->used_language]));
 
         /**
          * Get file name
@@ -450,11 +327,12 @@ class AwsPolly
         $file_name = $this->_getFileName();
 
         $voice = $this->Client->synthesizeSpeech([
-            'LanguageCode' => $this->getUsedLanguage(),
-            'OutputFormat' => $this->getFileExtension(),
+            'LanguageCode' => $this->used_language,
+            'OutputFormat' => $this->used_extension,
+            'SampleRate' => $this->used_sample_rate,
             'Text' => $text,
             'TextType' => 'text',
-            'VoiceId' => $this->getUsedVoice()
+            'VoiceId' => $this->used_voice
         ]);
 
         $voiceContent = $voice->get('AudioStream')->getContents();
@@ -473,15 +351,15 @@ class AwsPolly
      */
     private function _getFileName()
     {
-        $file_name = time() . '-' . str_shuffle(time()) . '.' . $this->getFileExtension();
+        $file_name = time() . '-' . str_shuffle(time()) . '.' . $this->used_extension;
 
-        $this->setOutputPath(rtrim($this->getOutputPath(), '/'));
+        $this->output_path = rtrim($this->output_path, '/');
 
-        if (!is_dir($this->getOutputPath())) {
-            mkdir($this->getOutputPath(), 0777, true);
+        if (!is_dir($this->output_path)) {
+            mkdir($this->output_path, 0777, true);
         }
 
-        $absolute_file_path = $this->getOutputPath() . '/' . $file_name;
+        $absolute_file_path = $this->output_path . '/' . $file_name;
 
         return $absolute_file_path;
     }
