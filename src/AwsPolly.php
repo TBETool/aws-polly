@@ -329,6 +329,7 @@ class AwsPolly
         $voice = $this->Client->synthesizeSpeech([
             'LanguageCode' => $this->used_language,
             'OutputFormat' => $this->used_extension,
+            'SampleRate' => $this->used_sample_rate,
             'Text' => $text,
             'TextType' => 'text',
             'VoiceId' => $this->used_voice
