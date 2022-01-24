@@ -1,5 +1,5 @@
 {
-  "name": "tbetool/aws-polly",
+  "name": "tnatanael/aws-polly",
   "type": "library",
   "description": "Based on Amazon AWS Polly. Text to Speech serializer",
   "keywords": ["aws", "amazon", "amazon aws", "text to speech", "aws text to speech", "aws polly text to speech",
