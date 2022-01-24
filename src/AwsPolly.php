@@ -27,9 +27,14 @@ class AwsPolly
     private $Client;
 
     private $used_voice = 'Ivy';
+    private $used_sample_rate = '16000';
     private $used_language = 'en-US';
     private $used_extension = 'mp3';
     private $output_path;
+
+    private $sample_rates = [
+        "8000", "16000", "22050", "24000"
+    ];
 
     private $file_extensions = [
         "json",
@@ -281,6 +286,9 @@ class AwsPolly
 
         if (!empty($param['language']))
             $this->used_language = $param['language'];
+
+        if (!empty($param['sample_rate']))
+            $this->used_sample_rate = $param['sample_rate'];
 
         if (!empty($param['output_format']))
             $this->used_extension = $param['output_format'];
